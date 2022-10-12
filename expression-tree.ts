@@ -1,5 +1,9 @@
 const assert = require("assert");
-
+/**
+ *
+ *  OperationNode Class Serve as a parent class to implement a polymorphism principal
+ *  This class also implement a builder pattern to allow an easy creation of tree and avoid null arguments
+ */
 abstract class OperatorNode {
   protected _value: number | null = null;
   protected _left: OperatorNode | null = null;

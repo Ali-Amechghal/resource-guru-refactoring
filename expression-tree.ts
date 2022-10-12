@@ -1,9 +1,9 @@
 const assert = require("assert");
 
 abstract class OperatorNode {
-  protected _value: number;
-  protected _left: OperatorNode;
-  protected _right: OperatorNode;
+  protected _value: number | null = null;
+  protected _left: OperatorNode | null = null;
+  protected _right: OperatorNode | null = null;
 
   withValue(value: number): OperatorNode {
     this._value = value;
@@ -18,15 +18,15 @@ abstract class OperatorNode {
     this._right = right;
     return this;
   }
-  public get value(): number {
-    return this.value;
+  public get value(): number | null {
+    return this._value;
   }
 
-  public get right(): OperatorNode {
-    return this.right;
+  public get right(): OperatorNode | null {
+    return this._right;
   }
-  public get left(): OperatorNode {
-    return this.left;
+  public get left(): OperatorNode | null {
+    return this._left;
   }
 
   abstract result(): number;
@@ -42,7 +42,56 @@ class DefaultNode extends OperatorNode {
   }
 }
 
-const tree = new DefaultNode();
+class PlusNode extends OperatorNode {
+  result(): number {
+    return this.left?.value! + this.right?.result()! || 0;
+  }
+  toString(): string {
+    return `(${this.left?.toString()} + ${this.right?.toString()})`;
+  }
+}
+
+class MinusNode extends OperatorNode {
+  result(): number {
+    return this.left?.result()! - this.right?.result()! || 0;
+  }
+  toString(): string {
+    return `(${this.left?.toString()} - ${this.right?.toString()})`;
+  }
+}
+
+class MultiplyNode extends OperatorNode {
+  result(): number {
+    return this.left?.result()! * this.right?.result()! || 0;
+  }
+  toString(): string {
+    return `(${this.left?.toString()} x ${this.right?.toString()})`;
+  }
+}
+class DividNode extends OperatorNode {
+  result(): number {
+    return this.left?.result()! / this.right?.result()! || 0;
+  }
+  toString(): string {
+    return `(${this.left?.toString()} ÷ ${this.right?.toString()})`;
+  }
+}
+
+const tree: OperatorNode = new DividNode()
+  .withLeft(
+    new PlusNode()
+      .withLeft(new DefaultNode().withValue(7))
+      .withRight(
+        new MultiplyNode()
+          .withLeft(
+            new MinusNode()
+              .withLeft(new DefaultNode().withValue(3))
+              .withRight(new DefaultNode().withValue(2))
+          )
+          .withRight(new DefaultNode().withValue(5))
+      )
+  )
+  .withRight(new DefaultNode().withValue(6));
 
 assert.strictEqual("((7 + ((3 - 2) x 5)) ÷ 6)", tree.toString());
 assert.strictEqual(2, tree.result());

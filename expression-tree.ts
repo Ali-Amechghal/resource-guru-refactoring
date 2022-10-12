@@ -1,62 +1,48 @@
 const assert = require("assert");
 
-const Node = (operator, value, left, right) => {
-  const result = function () {
-    switch (operator) {
-      case "+":
-        return left.result() + right.result();
-      case "-":
-        return left.result() - right.result();
-      case "x":
-        return left.result() * right.result();
-      case "÷":
-        return left.result() / right.result();
-      default:
-        return value;
-    }
-  };
+abstract class OperatorNode {
+  protected _value: number;
+  protected _left: OperatorNode;
+  protected _right: OperatorNode;
 
-  const toString = function () {
-    switch (operator) {
-      case "+":
-        return `(${left.toString()} + ${right.toString()})`;
-      case "-":
-        return `(${left.toString()} - ${right.toString()})`;
-      case "x":
-        return `(${left.toString()} x ${right.toString()})`;
-      case "÷":
-        return `(${left.toString()} ÷ ${right.toString()})`;
-      default:
-        return value.toString();
-    }
-  };
+  withValue(value: number): OperatorNode {
+    this._value = value;
+    return this;
+  }
 
-  return {
-    operator,
-    value,
-    left,
-    right,
-    result,
-    toString,
-  };
-};
+  withLeft(left: OperatorNode): OperatorNode {
+    this._left = left;
+    return this;
+  }
+  withRight(right: OperatorNode): OperatorNode {
+    this._right = right;
+    return this;
+  }
+  public get value(): number {
+    return this.value;
+  }
 
-const tree = Node(
-  "÷",
-  null,
-  Node(
-    "+",
-    null,
-    Node("", 7, null, null),
-    Node(
-      "x",
-      null,
-      Node("-", null, Node("", 3, null, null), Node("", 2, null, null)),
-      Node("", 5, null, null)
-    )
-  ),
-  Node("", 6, null, null)
-);
+  public get right(): OperatorNode {
+    return this.right;
+  }
+  public get left(): OperatorNode {
+    return this.left;
+  }
+
+  abstract result(): number;
+  abstract toString(): string;
+}
+
+class DefaultNode extends OperatorNode {
+  result(): number {
+    return this.value || 0;
+  }
+  toString(): string {
+    return this.value?.toString() || "";
+  }
+}
+
+const tree = new DefaultNode();
 
 assert.strictEqual("((7 + ((3 - 2) x 5)) ÷ 6)", tree.toString());
 assert.strictEqual(2, tree.result());
